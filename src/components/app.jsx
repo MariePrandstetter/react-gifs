@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux'
 import Title from './title';
 import Task from './task';
 import NewTask from './new_task';
@@ -6,6 +7,7 @@ import Checkbox from './checkbox';
 import Delete from './delete';
 import ReorderUp from './reorder_up.jsx';
 import ReorderDown from './reorder_down.jsx';
+import { addTask, markTaskAsDone } from '../reducers/taskList.js'
 
 const autoIncrement = list => {
   if (list.length === 0) {
@@ -31,50 +33,52 @@ class App extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      taskList: [],
       taskOrderList: []
     }
   }
 
   addItemTaskList = newTaskLabel => {
+    const { props } = this
+    const newTask = {
+      ...defaultTask,
+      id: autoIncrement(props.taskList),
+      label: newTaskLabel
+    }
+    props.dispatch(addTask(newTask))
+
     this.setState(previousState => {
-      const newId = autoIncrement(previousState.taskList)
       return {
-        taskList: [
-          ...previousState.taskList,
-          {
-            ...defaultTask,
-            id: newId,
-            label: newTaskLabel
-          }
-        ],
         taskOrderList: [
           ...previousState.taskOrderList,
-          newId
+          newTask.id
         ]
       }
     });
   }
 
   markAsDone = taskId => {
-    this.setState(previousState => {
-      // const elem = previousState.taskList.find((task) => {
-      //   return task.id === taskId
-      // })
-      // if (elem === undefined) return previousState
-      return {
-        taskList: previousState.taskList.map((task) => {
-          if (task.id === taskId) {
-            return {
-              ...task,
-              done: !task.done
-            }
-          } else {
-            return task
-          }
-        })
-      }
-    });
+    const { props } = this
+
+    // this.setState(previousState => {
+    //   // const elem = previousState.taskList.find((task) => {
+    //   //   return task.id === taskId
+    //   // })
+    //   // if (elem === undefined) return previousState
+    //   return {
+    //     taskList: previousState.taskList.map((task) => {
+    //       if (task.id === taskId) {
+    //         return {
+    //           ...task,
+    //           done: !task.done
+    //         }
+    //       } else {
+    //         return task
+    //       }
+    //     })
+    //   }
+    // });
+    props.dispatch(markTaskAsDone(taskId))
+
   }
 
   markAsDeleted = taskId => {
@@ -164,12 +168,12 @@ class App extends React.Component {
   }
 
   render () {
-    const { state } = this
+    const { props, state } = this
     return (
       <div className='main' id="colums">
         <Title label='Todooo App'/>
         {state.taskOrderList.map((taskId, i) => {
-          const task = state.taskList.find(task => taskId === task.id)
+          const task = props.taskList.find(task => taskId === task.id)
           return (
             <div
               className="task"
@@ -207,4 +211,9 @@ class App extends React.Component {
   }
 }
 
-export default App;
+const mapStateToProps = (stateRedux) => {
+  return {
+    taskList: stateRedux.taskList
+  }
+}
+export default connect(mapStateToProps)(App);

@@ -19,17 +19,18 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
+        test: [/\.jsx?$/, /\.js?$/],
+        exclude: [/node_modules/],
         loader: 'babel-loader'
       },
       {
         test: /\.s?css$/,
-        exclude: /node_modules/,
+        exclude: [/node_modules/],
         loaders: [ 'style-loader', 'css-loader', 'sass-loader' ]
       },
       {
         test: /\.html$/,
+        exclude: [/node_modules/],
         loader: 'html-loader'
       },
     ]
